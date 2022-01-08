@@ -1,4 +1,7 @@
 FROM ubuntu:20.04
+# Author: Harald S. Fianbakken
+# Description: Latest Azure tools + CLI + Powershell modules
+# Also includes Microsoft genomics which is a bit hassle with the versioning.
 
 RUN apt-get update
 RUN apt-get install -y wget apt-transport-https software-properties-common
@@ -29,6 +32,6 @@ RUN pip install msgen
 
 RUN useradd -m azureuser
 USER azureuser
-
+# Can always use the container/run interactive witH docker run -it haraldf/azuretools:latest
 RUN mkdir $HOME/git
 CMD [ "pwsh" ]
