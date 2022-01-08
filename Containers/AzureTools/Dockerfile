@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 # Author: Harald S. Fianbakken
 # Description: Latest Azure tools + CLI + Powershell modules
 # Also includes Microsoft genomics which is a bit hassle with the versioning.
-# Automatically pushed to docker hub by github actions
+# Automatically pushed to docker hub by github 
 
 RUN apt-get update
 RUN apt-get install -y wget apt-transport-https software-properties-common
