@@ -1,4 +1,4 @@
-name: Build and push latest Azure Tools
+name: Build and push latest Azure Tools docker image
 
 on:
   push:
@@ -7,15 +7,18 @@ on:
       - Containers/AzureTools/Dockerfile
   pull_request:
     branches: [ main ]
-  
+  schedule:
+    - cron: 0 0 * * FRI
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Set env BRANCH
+      run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Containers/AzureTools/Dockerfile --tag haraldf/azuretools:$(date +%s) --tag haraldf/azuretools:latest
+      run: docker build . --file Containers/AzureTools/Dockerfile --tag haraldf/azuretools:$(date +%d%m%Y) --tag haraldf/azuretools:latest
 
     - name: Login to Docker Hub
       if:  ${{ github.ref == 'ref/head/main'}} 
@@ -23,8 +26,12 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Push the image to docker hub
+    - name: Push the images to docker hub
       if:  ${{ github.ref == 'ref/head/main'}} 
       run: |
-        docker image push haraldf/azuretools:latest
-      
+        docker image push haraldf/azuretools:latest         
+        if [[ $BRANCH == 'main' && $GITHUB_EVENT_NAME == 'push' ]]; then
+          docker image push haraldf/azuretools:$(date +%d%m%Y)    
+        else
+            echo 'Skipping date tags - recurring build - only pushing latest'
+        fi              
