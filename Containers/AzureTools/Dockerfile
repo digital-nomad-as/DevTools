@@ -31,6 +31,18 @@ RUN python get-pip.py
 RUN pip install --upgrade --no-deps msgen
 RUN pip install msgen
 
+# Bicep on cli
+RUN az bicep install
+
+# Bicep on Powershell
+# Fetch the latest Bicep CLI binary
+RUN curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+# Mark it as executable
+RUN chmod +x ./bicep
+# Add bicep to your PATH (requires admin)
+RUN mv ./bicep /usr/local/bin/bicep
+# Verify you can now access the 'bicep' command
+
 RUN useradd -m azureuser
 USER azureuser
 # Can always use the container/run interactive witH docker run -it haraldf/azuretools:latest
