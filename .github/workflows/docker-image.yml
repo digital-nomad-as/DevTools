@@ -18,7 +18,7 @@ jobs:
       run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Containers/AzureTools/Dockerfile --tag haraldf/azuretools:$(date +%d%m%Y) --tag haraldf/azuretools:latest
+      run: docker build --no-cache . --file Containers/AzureTools/Dockerfile --tag haraldf/azuretools:$(date +%d%m%Y) --tag haraldf/azuretools:latest
 
     - name: Login to Docker Hub
       if:  ${{ github.ref == 'ref/head/main'}} 
