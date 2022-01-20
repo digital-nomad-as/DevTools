@@ -6,6 +6,8 @@ FROM ubuntu:20.04
 
 RUN apt-get update
 RUN apt-get install -y wget apt-transport-https software-properties-common
+# RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
+
 RUN wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
 RUN dpkg -i packages-microsoft-prod.deb
 RUN apt-get update -y
@@ -17,7 +19,7 @@ RUN apt-get install -y curl
 RUN apt-get install -y python2.7 
 RUN ln -s /usr/bin/python2.7 /usr/bin/python
 RUN apt-get install -y build-essential libssl-dev libffi-dev libpython2-dev python-dev 
-
+RUN apt-get install -y azure-functions-core-tools-4
 RUN apt-get install -y git
 RUN pwsh -Command "&{Install-Module -Name Az -AllowClobber -Scope AllUsers -Force}"
 # AzureCLI 
@@ -44,11 +46,12 @@ RUN chmod +x ./bicep
 RUN mv ./bicep /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
 
+RUN wget -O /tmp/arm-ttk.zip https://aka.ms/arm-ttk-latest
+
 RUN useradd -m azureuser
 USER azureuser
 # Can always use the container/run interactive witH docker run -it haraldf/azuretools:latest
 RUN mkdir $HOME/git
 RUN mkdir -p $HOME/.local/share/powershell/Modules/;
-RUN wget -O /tmp/arm-ttk.zip https://aka.ms/arm-ttk-latest
 RUN unzip /tmp/arm-ttk.zip -d $HOME/.local/share/powershell/Modules/
 CMD [ "pwsh" ]

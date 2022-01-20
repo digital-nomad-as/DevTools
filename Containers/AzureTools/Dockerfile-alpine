@@ -1,35 +1,59 @@
 FROM alpine:latest
 ## WORK IN PROGRESS - minimalizing build/size
-RUN apk add update \ 
-    && apk upgrade 
-RUN apk add curl 
-RUN apk add python2.7 
+RUN apk --no-cache add --virtual builds-deps 
+RUN apk add --no-cache \
+    ca-certificates \
+    less \
+    ncurses-terminfo-base \
+    krb5-libs \
+    libgcc \
+    libintl \
+    libssl1.1 \
+    libstdc++ \
+    tzdata \
+    userspace-rcu \
+    zlib \
+    icu-libs \
+    curl
 
-RUN apk add powershell
+RUN apk add --no-cache python2
+
+RUN apk -X https://dl-cdn.alpinelinux.org/alpine/edge/main add --no-cache lttng-ust
 RUN apk add sudo
 RUN apk add git
-RUN ln -s /usr/bin/python2.7 /usr/bin/python
+
+RUN curl -L https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/powershell-7.2.1-linux-alpine-x64.tar.gz -o /tmp/powershell.tar.gz
+
+# Create the target folder where powershell will be placed
+RUN mkdir -p /opt/microsoft/powershell/7
+
+# Expand powershell to the target folder
+RUN tar zxf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7
+
+# Set execute permissions
+RUN chmod +x /opt/microsoft/powershell/7/pwsh
+
+# Create the symbolic link that points to pwsh
+RUN ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh
 
 RUN apk add unzip
 
-RUN apt-get install -y build-essential libssl-dev libffi-dev libpython2-dev python-dev 
-
 RUN pwsh -Command "&{Install-Module -Name Az -AllowClobber -Scope AllUsers -Force}"
-# AzureCLI - alpine
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
 # PIP WITH Python2.7 is deprecated. Also - msgen only supporting Python2.7 .
 RUN curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
 RUN python get-pip.py
 
+# AzureCLI - alpine
+RUN apk add --no-cache python3 py3-pip gcc musl-dev python3-dev libffi-dev openssl-dev cargo make
+RUN python3 -m pip install --upgrade pip
+RUN pip3 install azure-cli
+
 # Microsoft Genomics
 RUN pip install --upgrade --no-deps msgen
 RUN pip install msgen
-
 # Bicep on cli
 RUN az bicep install
 
-RUN apt-get install zip unzip
 # Bicep on Powershell
 # Fetch the latest Bicep CLI binary
 RUN curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
@@ -39,12 +63,22 @@ RUN chmod +x ./bicep
 RUN mv ./bicep /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
 
-# Azure User context
-RUN useradd -m azureuser
-USER azureuser
-# Can always use the container/run interactive witH docker run -it haraldf/azuretools:latest
-RUN mkdir $HOME/git
+RUN wget -O /tmp/arm-ttk.zip https://aka.ms/arm-ttk-latest
+RUN wget -O /tmp/function-tools.zip https://github.com/Azure/azure-functions-core-tools/releases/download/4.0.3971/Azure.Functions.Cli.linux-x64.4.0.3971.zip
 
-RUN unzip $HOME/arm-ttk.zip -d $HOME/.local/share/powershell/Modules/
+RUN unzip /tmp/function-tools.zip -d /usr/local/lib/azure-functions-cli 
+RUN chmod 755 /usr/local/lib/azure-functions-cli
+RUN chmod a+x /usr/local/lib/azure-functions-cli/func
+RUN chmod a+x /usr/local/lib/azure-functions-cli/gozip
+
+ENV PATH=/usr/local/lib/azure-functions-cli:$PATH
+# Azure User context
+
+RUN addgroup -S azuregroup && adduser -S azureuser -G azuregroup
+USER azureuser
+RUN mkdir $HOME/git
+RUN mkdir -p $HOME/.local/share/powershell/Modules/
+RUN unzip /tmp/arm-ttk.zip -d $HOME/.local/share/powershell/Modules/
+
 ## https://aka.ms/arm-ttk-latest
 CMD [ "pwsh" ]
