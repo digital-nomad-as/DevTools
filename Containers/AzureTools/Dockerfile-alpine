@@ -61,7 +61,13 @@ RUN curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep
 RUN chmod +x ./bicep
 # Add bicep to your PATH (requires admin)
 RUN mv ./bicep /usr/local/bin/bicep
-# Verify you can now access the 'bicep' command
+
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > get_helm.sh
+RUN chmod 700 get_helm.sh
+RUN ./get_helm.sh
 
 RUN wget -O /tmp/arm-ttk.zip https://aka.ms/arm-ttk-latest
 RUN wget -O /tmp/function-tools.zip https://github.com/Azure/azure-functions-core-tools/releases/download/4.0.3971/Azure.Functions.Cli.linux-x64.4.0.3971.zip
