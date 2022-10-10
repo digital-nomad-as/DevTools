@@ -22,6 +22,7 @@ RUN apt-get install -y build-essential libssl-dev libffi-dev libpython2-dev pyth
 RUN apt-get install -y azure-functions-core-tools-4
 RUN apt-get install -y git
 RUN pwsh -Command "&{Install-Module -Name Az -AllowClobber -Scope AllUsers -Force}"
+RUN pwsh -Command "&{Install-Module -Name Az.ResourceGraph -AllowClobber -Scope AllUsers -Force}"
 # AzureCLI 
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
