@@ -54,7 +54,7 @@ RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get > get_helm.sh
 RUN chmod 700 get_helm.sh
 RUN ./get_helm.sh
-
+# 
 # Verify you can now access the 'bicep' command
 
 RUN wget -O /tmp/arm-ttk.zip https://aka.ms/arm-ttk-latest
