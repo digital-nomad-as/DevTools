@@ -23,6 +23,8 @@ RUN apt-get install -y azure-functions-core-tools-4
 RUN apt-get install -y git
 RUN pwsh -Command "&{Install-Module -Name Az -AllowClobber -Scope AllUsers -Force}"
 RUN pwsh -Command "&{Install-Module -Name Az.ResourceGraph -AllowClobber -Scope AllUsers -Force}"
+RUN pwsh -Command "&{Install-Module -Name SqlServer -AllowClobber -Scope AllUsers -Force}"
+
 # AzureCLI 
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
@@ -45,7 +47,13 @@ RUN curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep
 RUN chmod +x ./bicep
 # Add bicep to your PATH (requires admin)
 RUN mv ./bicep /usr/local/bin/bicep
-
+# AZcopy
+RUN curl -Lo azcopy.tar https://aka.ms/downloadazcopy-v10-linux
+RUN mkdir azcopy
+RUN tar -xf ./azcopy.tar ./azcopy/ 
+RUN $FP=$(find ./azcopy/ -name azcopy -type f)
+RUN mv $FP /usr/local/bin/
+RUN chmod 700 /usr/local/bin/azcopy
 # Download latest kubectl & helm
 
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
