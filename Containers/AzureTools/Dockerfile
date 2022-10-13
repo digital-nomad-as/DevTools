@@ -50,10 +50,9 @@ RUN mv ./bicep /usr/local/bin/bicep
 # AZcopy
 RUN curl -Lo azcopy.tar https://aka.ms/downloadazcopy-v10-linux
 RUN mkdir azcopy
-RUN tar -xf ./azcopy.tar ./azcopy/ 
-RUN $FP=$(find ./azcopy/ -name azcopy -type f)
-RUN mv $FP /usr/local/bin/
-RUN chmod 700 /usr/local/bin/azcopy
+RUN tar -xvf azcopy.tar -C ./azcopy/ 
+RUN FP=$(find ./azcopy -name azcopy -type f);mv $FP /usr/local/bin/
+RUN chmod +x /usr/local/bin/azcopy
 # Download latest kubectl & helm
 
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
